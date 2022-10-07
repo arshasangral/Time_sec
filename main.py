@@ -27,7 +27,53 @@ def get_total_hours(row):
 
     return total_hours            
 
-        
+def get_authenticate(email,password):
+    cursor.execute(f"select pass_word from entry where email ='{email}'")
+    data = cursor.fetchall()
+    if len(data)==0:
+        return False
+  
+    # extract pasword from pass_wrd
+    return password == data[0][0]
+
+
+
+def get_name(email):
+    cursor.execute(f"select Employee_name from entry where email = '{email}'")
+    name = cursor.fetchall()
+    return name[0][0]
+
+
+
+def get_schedule_list(email):
+
+    cursor.execute(f"select Days_at_work, Num_of_hours from entry where email = '{email}'")
+                    
+    for i in cursor:
+        divided_hours = get_total_hours(i)
+                    
+
+    lst = [] 
+            
+
+    for hour in divided_hours:
+                    time = random.choice(timeList)
+                    deltatime = datetime.timedelta(hours=hour)
+                    d = datetime.datetime.strptime(str(time),"%H:%M:%S")
+                    new_time = d.strftime("%I:%M %p")
+                    sum = time + deltatime
+                    dd = datetime.datetime.strptime(str(sum),"%H:%M:%S")
+                    new_sum = dd.strftime("%I:%M %p")
+                    
+                    lst.append((new_time +" "+ "-" +" "+ new_sum))
+
+    new_lst = ['not scheduled']*7
+    for i in range(len(lst)):
+                new_lst[i]=lst[i] 
+
+
+    return new_lst            
+
 
 app = Flask(__name__)
 
@@ -47,42 +93,18 @@ def open():
         password= request.form['psw']
 
 
-        cursor.execute(f"select * from entry where email ='{email}' and pass_word = '{password}'")
-        data = cursor.fetchall()
-        
+        authenticate = get_authenticate(email,password)
 
 
-        if len(data)==0:
+        if authenticate==False:
             return redirect(url_for('redirected'))
+        
         else:    
 
-
-        
-            cursor.execute(f"select Days_at_work, Num_of_hours from entry where email = '{email}' and pass_word = '{password}'")
-                    
-            for i in cursor:
-                divided_hours = get_total_hours(i)
-                    
-
-            lst = [] 
+            sec_lst = get_schedule_list(email)
+            name = get_name(email)      
             
-
-            for hour in divided_hours:
-                    time = random.choice(timeList)
-                    deltatime = datetime.timedelta(hours=hour)
-                    d = datetime.datetime.strptime(str(time),"%H:%M:%S")
-                    new_time = d.strftime("%I:%M %p")
-                    sum = time + deltatime
-                    dd = datetime.datetime.strptime(str(sum),"%H:%M:%S")
-                    new_sum = dd.strftime("%I:%M %p")
-                    
-                    lst.append((new_time +" "+ "-" +" "+ new_sum))
-
-            new_lst = ['not scheduled']*7
-            for i in range(len(lst)):
-                new_lst[i]=lst[i]        
-            
-            return render_template('display.html',value =data[0][0],value1 =new_lst[0],value2 = new_lst[1],value3 = new_lst[2],value4 =new_lst[3],value5 =new_lst[4],value6 =new_lst[5],value7 =new_lst[6])
+            return render_template('display.html',value = name ,value1 =sec_lst [0],value2 = sec_lst [1],value3 = sec_lst [2],value4 =sec_lst [3],value5 =sec_lst [4],value6 =sec_lst [5],value7 =sec_lst [6])
 
 @app.route('/signup', methods = ["POST","GET"])
 def signup():
