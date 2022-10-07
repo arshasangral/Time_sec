@@ -1,20 +1,14 @@
-from flask import Flask
-from flask import render_template,request
-import mysql.connector
-import datetime
-import random
+s = "bbbbb"
+t = ""
+le = 0
 
 
+for j in range(len(s)):
+    if s[j] in t:
+        le = max(le,len(t))
+        i = t.index(s[j])
+        t = t[i+1:]
 
-mydb = mysql.connector.connect(user="arsha", passwd="1234", host="localhost",auth_plugin='mysql_native_password',database ='timdatabase')
+    t+=s[j]
 
-cursor = mydb.cursor()
-
-cursor.execute("select Days_at_work from entry where email='ar@gmail.com' and pass_word='arsha3     '")
-
-lst = [1,2,3,4] 
-new_lst = ['null']*7
-for i in range(len(lst)):
-    new_lst[i]=lst[i]
-
-print(new_lst)    
+print(le)
